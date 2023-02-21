@@ -10,9 +10,9 @@ function Words() {
 
     return (
         <div className='words'>
-            <div className='container'>
+            {(gameLoading || slotsLoading) && <Loading/>}
+            <div className={`${gameLoading || slotsLoading ? 'container faded' : 'container'}`}>
                 <Word/>
-                {(gameLoading || slotsLoading) && <Loading/>}
             </div>
         </div>
     )

@@ -12,7 +12,6 @@ function KeyboardLine(props) {
                         key={index}
                         position={index}
                         value={key.value} 
-                        color={key.color}
                         command={key.isCommand} />
                 ))
             }

@@ -37,7 +37,7 @@ export const checkLetters = createAsyncThunk(
             if (!data.status) {
                 throw new Error();
             }
-            return [data.status, position, letter];
+            return [data.status, letter];
 
         } catch (error) {
             throw new Error(error);
@@ -74,6 +74,13 @@ export const slotsSlice = createSlice({
         setError: (state, action) => {
             state.error.show = true;
             state.error.errorMessage = action.payload;
+        },
+        setStates: (state, action) => {
+            const { index, color, letter }= action.payload;
+            state.letterStatus[index] = { color: color, letter: letter};
+        },
+        setLoading: (state, action) => {
+            state.isLoading = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -87,7 +94,7 @@ export const slotsSlice = createSlice({
                 state.isLoading = false;
                 state.error.show = false;
                 state.error.errorMessage = null;
-                state.validWord = action.payload;
+
             })
             .addCase(checkWords.rejected, (state, action) => {
                 state.isLoading = false;
@@ -95,18 +102,16 @@ export const slotsSlice = createSlice({
                 state.error.errorMessage = action.error.message;
             })
             .addCase(checkLetters.pending, (state) => {
+                state.letterStatus = [];
                 state.isLoading = true;
             })
-            .addCase(checkLetters.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.letterStatus[action.payload[1]] = action.payload[0];
-            })
             .addCase(checkLetters.rejected, (state, action) => {
+                state.letterStatus = [];
                 state.isLoading = false;
             });
     }
 });
 
-export const { selectSlot, selectKey, deleteLetter, setError } = slotsSlice.actions;
+export const { selectSlot, selectKey, deleteLetter, setError, setStates, setLoading } = slotsSlice.actions;
 
 export default slotsSlice.reducer;

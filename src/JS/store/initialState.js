@@ -7,17 +7,16 @@ export const initialState = {
     },
     slots: {
         letters: Array(5).fill(null),
-        color: {
+        colors: {
             'wrong': 'gray',
             'in word': 'yellow',
             'in position': 'green'
         },
-        selectedSlot: null,
+        selectedSlot: 0,
         error: {
             show: false,
             errorMessage: null
         },
-        validWord: null,
         letterStatus: [],
         isLoading: false
     }
