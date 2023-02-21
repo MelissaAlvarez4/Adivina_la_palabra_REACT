@@ -4,15 +4,18 @@ import Key from './Key';
 function KeyboardLine(props) {
     const { keys } = props;
 
-    const keyComponents = keys.map((key, index) => {
-        return (
-            <Key key={index} value={key.value} color={key.color} />
-        );
-    });
-
     return (
         <div className="keyboard-line">
-            {keyComponents}
+            {
+                keys.map((key, index) => (
+                    <Key 
+                        key={index}
+                        position={index}
+                        value={key.value} 
+                        color={key.color}
+                        command={key.isCommand} />
+                ))
+            }
         </div>
     );
 }
