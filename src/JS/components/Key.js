@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectKey, deleteLetter, checkWords, checkLetters, setError, setStates, setLoading} from '../reducers/slotsSlice';
+import { 
+    selectKey, 
+    deleteLetter, 
+    checkWords, 
+    checkLetters, 
+    setError, 
+    setStates, 
+    setLoading, 
+    setWords,
+    selectSlot,
+    setResult } from '../reducers/slotsSlice';
 
 function Key(props) {
     const { value, command, position} = props;
-    const word = useSelector(state => state.slots.letters.join(''));
+    const words = useSelector(state => state.slots.words);
     const gameId = useSelector((state) => state.game.id);
-    const letterStatus = useSelector((state) => state.slots.letterStatus);
     const colors = useSelector((state) => state.slots.colors);
     const [color, setColor] = useState('');
     const dispatch = useDispatch();
 
+
     useEffect(() => {
-        letterStatus.forEach(el => {
-        if (el.letter === value) {
-            setColor(el.color);
-        }
+        words[words.length-1].letterStatus.forEach(el => {
+            if (el.letter === value) {
+                if(color !== 'green') setColor(el.color)
+            }
         });
-    }, [letterStatus, value]);
+    }, [words, value, color]);
 
 
     const handleCompleteWord = async () => {
+        const word = words[words.length-1].letters.join('');
         if (word.length === 5) {
             try {
                 const valid = await dispatch(checkWords(word))
@@ -34,10 +45,20 @@ function Key(props) {
                             response.forEach((el, index) => {
                                 const color = colors[el.payload[0]];
                                 const letter = el.payload[1];
-                                dispatch(setStates({index, color, letter}))
+                                dispatch(setStates({index, color, letter}));
                             });
+                            if(response.every(el => el.payload[0] === 'in position')) {
+                                dispatch(setResult('Has ganado'));
+                            } else {
+                                if(words.length < 6 ) {
+                                    dispatch(setWords({id: words.length, letters: Array(5).fill(null), letterStatus: []}));
+                                    dispatch(selectSlot({index: 0, word: words.length}));
+                                } else {
+                                    dispatch(setResult('Has perdido'));
+                                }
+                            }
                         }).catch((error) => {
-                            console.log(error);
+                            console.log('Error: ' + error);
                         }).finally(() => dispatch(setLoading(false)));
                     
                 }

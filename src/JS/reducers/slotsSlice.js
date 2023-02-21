@@ -12,11 +12,11 @@ export const checkWords = createAsyncThunk(
             const response = await fetch(`${PATH}/check/${word}`);
             const data = await response.json();
             if(!data.valid) {
-                throw new Error();
+                throw new Error('La palabra no está en la lista');
             }
             return data.valid;
         } catch (error) {
-            throw new Error('La palabra no está en la lista');
+            throw new Error(error);
         }
     }
 );
@@ -50,37 +50,49 @@ export const slotsSlice = createSlice({
     initialState: initialState.slots,
     reducers: {
         selectSlot: (state, action) => {
-            state.selectedSlot = action.payload;
+            state.selectedSlot[action.payload.word] = action.payload;
         },
         selectKey:(state, action) => {
-            if(state.selectedSlot !== null) {
-                state.letters[state.selectedSlot] = action.payload;
-                const slot = findFirstNullIndex(state.letters);
-                state.selectedSlot = slot === -1 ? null : slot;
+            let selected = state.selectedSlot[state.selectedSlot.length-1];
+            if(selected.index !== null) {
+                const letters = state.words[selected.word].letters;
+                letters[selected.index] = action.payload;
+                const slot = findFirstNullIndex(letters);
+                selected.index = slot === -1 ? null : slot;
             }
         },
-        deleteLetter: (state) => {  
-            if(state.selectedSlot !== null) {
-                if(state.letters[state.selectedSlot] !== null) {
-                    state.letters[state.selectedSlot] = null;
+        deleteLetter: (state) => {
+            let selected = state.selectedSlot[state.selectedSlot.length-1];  
+            let letters = state.words[selected.word].letters;
+            if(selected.index !== null) {
+                if(letters[selected.index] !== null) {
+                    letters[selected.index] = null;
                 } else {
-                    state.letters[state.selectedSlot-1] = null;
+                    letters[selected.index-1] = null;
                 }
             } else {
-                state.letters[4] = null;
+                letters[4] = null;
             }
-            state.selectedSlot = findFirstNullIndex(state.letters);
+            selected.index = findFirstNullIndex(letters);
         },
         setError: (state, action) => {
             state.error.show = true;
             state.error.errorMessage = action.payload;
         },
         setStates: (state, action) => {
+            const letterStatus = state.words[state.words.length-1].letterStatus;
             const { index, color, letter }= action.payload;
-            state.letterStatus[index] = { color: color, letter: letter};
+            letterStatus[index] = { color: color, letter: letter};
         },
         setLoading: (state, action) => {
             state.isLoading = action.payload;
+        },
+        setWords: (state, action) => {
+            state.words.push(action.payload);
+        },
+        setResult: (state, action) => {
+            state.message = true;
+            state.result = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -102,16 +114,14 @@ export const slotsSlice = createSlice({
                 state.error.errorMessage = action.error.message;
             })
             .addCase(checkLetters.pending, (state) => {
-                state.letterStatus = [];
                 state.isLoading = true;
             })
             .addCase(checkLetters.rejected, (state, action) => {
-                state.letterStatus = [];
                 state.isLoading = false;
             });
     }
 });
 
-export const { selectSlot, selectKey, deleteLetter, setError, setStates, setLoading } = slotsSlice.actions;
+export const { selectSlot, selectKey, deleteLetter, setError, setStates, setLoading, setWords, setResult } = slotsSlice.actions;
 
 export default slotsSlice.reducer;

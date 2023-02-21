@@ -9,7 +9,9 @@ import Error from './Error';
 function Game() {
     const dispatch = useDispatch();
     const apiError = useSelector(state=> state.game.apiError);
-    const message = useSelector(state => state.game.message);
+    const apiMessage = useSelector(state => state.game.message);
+    const result = useSelector(state=> state.slots.result);
+    const message = useSelector(state => state.slots.message);
     const { show }  = useSelector(state => state.slots.error);
 
     useEffect(() => {
@@ -18,7 +20,8 @@ function Game() {
 
     return (
         <div className='game'>
-            {message && <div className='message'>{apiError}</div>}
+            {message && <div className='message'>{result}</div>}
+            {apiMessage && <div className='message'>{apiError}</div>}
             <div className='board'>
                 <h1>Adivina la palabra</h1>
                 <Words/>
@@ -26,7 +29,7 @@ function Game() {
                 {show && <Error/>}
             </div>
         </div>
-    )
+    );
 }
 
 export default Game;

@@ -1,26 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import '../../CSS/letter.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectSlot } from '../reducers/slotsSlice';
+import { useSelector } from 'react-redux';
 
 function Letter(props) {
-    const { index } = props;
-    const dispatch = useDispatch();
+    const { index, id, handleSlotClick} = props;
     const selectedSlot = useSelector(state => state.slots.selectedSlot);
-    const letters = useSelector(state => state.slots.letters);
-    const letterStatus = useSelector((state) => state.slots.letterStatus);
+    const words = useSelector(state => state.slots.words);
 
-    const handleSlotClick = () => {
-        dispatch(selectSlot(index));
+    const handleClick = () => {
+        handleSlotClick(index);
+    };
+
+    const getPosition = () => {
+        return selectedSlot[selectedSlot.length-1].index === index && selectedSlot[selectedSlot.length-1].word === id;
     }
 
+    const getColor = () => {
+        if(words[id].letterStatus.length > 0) {
+            if(words[id].letterStatus[index]?.color) {
+                return words[id].letterStatus[index]?.color;
+            }
+        }
+    }
+
+    getColor();
     return (
         <div className='letter' key={index}>
-            <div className={`slot ${letterStatus[index]?.color} ${selectedSlot === index ? 'selected' : ''}`} onClick={handleSlotClick}>
-                <p>{letters[index]}</p>
+            <div className={`slot ${getColor()} ${getPosition() ? 'selected' : ''}`} onClick={handleClick}>
+                <p>{words[id].letters[index]}</p>
             </div>
         </div>
     )
 }
+
 
 export default Letter;

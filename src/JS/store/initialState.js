@@ -6,18 +6,26 @@ export const initialState = {
         isLoading: false
     },
     slots: {
-        letters: Array(5).fill(null),
+        words: [{
+            id: 0,
+            letters: Array(5).fill(null),
+            letterStatus: []
+        }],
         colors: {
-            'wrong': 'gray',
+            'wrong': 'grey',
             'in word': 'yellow',
             'in position': 'green'
         },
-        selectedSlot: 0,
+        selectedSlot: [{
+            index: 0,
+            word: 0
+        }],
         error: {
             show: false,
             errorMessage: null
         },
-        letterStatus: [],
-        isLoading: false
+        isLoading: false,
+        result: null,
+        message: false
     }
 };
