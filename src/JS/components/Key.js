@@ -58,7 +58,7 @@ function Key(props) {
                                 }
                             }
                         }).catch((error) => {
-                            console.log('Error: ' + error);
+                            throw new Error(error);
                         }).finally(() => dispatch(setLoading(false)));
                     
                 }

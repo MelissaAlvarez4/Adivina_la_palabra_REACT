@@ -12,11 +12,11 @@ export const checkWords = createAsyncThunk(
             const response = await fetch(`${PATH}/check/${word}`);
             const data = await response.json();
             if(!data.valid) {
-                throw new Error('La palabra no está en la lista');
+                throw new Error();
             }
             return data.valid;
         } catch (error) {
-            throw new Error(error);
+            throw new Error('La palabra no está en la lista');
         }
     }
 );
