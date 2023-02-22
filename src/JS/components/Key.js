@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { INCOMPLETE, WINNER, LOSER } from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
     selectKey, 
@@ -14,9 +15,8 @@ import {
 
 function Key(props) {
     const { value, command, position} = props;
-    const words = useSelector(state => state.slots.words);
+    const { words, colors } = useSelector(state => state.slots);
     const gameId = useSelector((state) => state.game.id);
-    const colors = useSelector((state) => state.slots.colors);
     const [color, setColor] = useState('');
     const dispatch = useDispatch();
 
@@ -29,46 +29,52 @@ function Key(props) {
         });
     }, [words, value, color]);
 
+    const checkLettersForWord = async (word) => {
+        const letterPromises = Array.from(word).map((letter, position) => {
+            return dispatch(checkLetters({ gameId, letter, position }));
+        });
+
+        return Promise.all(letterPromises);
+    };
+    
+    const handleResponse = (response) => {
+        dispatch(setLoading(true));
+        response.forEach(({ payload: [colorCode, letter] }, index) => {
+            const color = colors[colorCode];
+            dispatch(setStates({ index, color, letter }));
+        });
+
+        if (response.every(({ payload: [status] }) => status === 'in position')) {
+            dispatch(setResult(WINNER));
+        } else {
+            if (words.length < 6) {
+                dispatch(setWords({id: words.length,letters: Array(5).fill(null),letterStatus: []}));
+                dispatch(selectSlot({ index: 0, word: words.length }));
+            } else {
+                dispatch(setResult(LOSER));
+            }
+        }
+        dispatch(setLoading(false));
+    };
+
 
     const handleCompleteWord = async () => {
-        const word = words[words.length-1].letters.join('');
-        if (word.length === 5) {
-            try {
-                const valid = await dispatch(checkWords(word))
-                if (valid.payload) {
-                    const letterPromises = Array.from(word).map((letter, position) => {
-                        return dispatch(checkLetters({gameId, letter, position}));
-                    });
-                    Promise.all(letterPromises)
-                        .then(response => {
-                            dispatch(setLoading(true));
-                            response.forEach((el, index) => {
-                                const color = colors[el.payload[0]];
-                                const letter = el.payload[1];
-                                dispatch(setStates({index, color, letter}));
-                            });
-                            if(response.every(el => el.payload[0] === 'in position')) {
-                                dispatch(setResult('Has ganado'));
-                            } else {
-                                if(words.length < 6 ) {
-                                    dispatch(setWords({id: words.length, letters: Array(5).fill(null), letterStatus: []}));
-                                    dispatch(selectSlot({index: 0, word: words.length}));
-                                } else {
-                                    dispatch(setResult('Has perdido'));
-                                }
-                            }
-                        }).catch((error) => {
-                            throw new Error(error);
-                        }).finally(() => dispatch(setLoading(false)));
-                    
-                }
-            } catch (error) {
-                throw new Error(error)
-            }
-        } else {
-            dispatch(setError('No hay suficientes letras'))
+        const word = words[words.length - 1].letters.join('');
+        let response;
+        if (word.length !== 5) {
+            dispatch(setError(INCOMPLETE));
+            return;
         }
-    }
+        try {
+            const valid = await dispatch(checkWords(word));
+            if (!valid.payload) return;
+            response = await checkLettersForWord(word);
+            handleResponse(response);
+        } catch (error) {
+            throw new Error(error);
+        }
+    };
+
 
     const handleDeleteLetter = () => {
         dispatch(deleteLetter());

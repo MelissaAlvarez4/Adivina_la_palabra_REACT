@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Letter from './Letter'
 import { selectSlot } from '../reducers/slotsSlice';
 import { useDispatch } from 'react-redux';
 
 function Word(props) {
-    const slots = Array(5).fill(null);
     const { id } = props;
+    const slots = Array(5).fill(null);
     const dispatch = useDispatch();
     
     const handleSlotClick = (index) => {
@@ -23,4 +23,4 @@ function Word(props) {
     )
 }
 
-export default Word;
+export default React.memo(Word);

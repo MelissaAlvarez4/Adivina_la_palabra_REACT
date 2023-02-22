@@ -7,12 +7,11 @@ import Keyboard from './Keyboard';
 import Error from './Error';
 
 function Game() {
-    const dispatch = useDispatch();
     const apiError = useSelector(state=> state.game.apiError);
     const apiMessage = useSelector(state => state.game.message);
-    const result = useSelector(state=> state.slots.result);
-    const message = useSelector(state => state.slots.message);
+    const { result, message} = useSelector(state=> state.slots);
     const { show }  = useSelector(state => state.slots.error);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(startGame());

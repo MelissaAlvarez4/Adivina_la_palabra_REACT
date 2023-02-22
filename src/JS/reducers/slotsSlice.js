@@ -1,9 +1,8 @@
+import { PATH, NO_WORD } from '../constants';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { initialState } from '../store/initialState';
 
 const findFirstNullIndex = (array) => array.findIndex((item) => item === null);
-
-const PATH = 'https://adivina-palabra.fly.dev';
 
 export const checkWords = createAsyncThunk(
     'checkWords',
@@ -16,7 +15,7 @@ export const checkWords = createAsyncThunk(
             }
             return data.valid;
         } catch (error) {
-            throw new Error('La palabra no está en la lista');
+            throw new Error(NO_WORD);
         }
     }
 );
@@ -102,7 +101,7 @@ export const slotsSlice = createSlice({
                 state.error.errorMessage = null;
                 state.isLoading = true;
             })
-            .addCase(checkWords.fulfilled, (state, action) => {
+            .addCase(checkWords.fulfilled, (state) => {
                 state.isLoading = false;
                 state.error.show = false;
                 state.error.errorMessage = null;
@@ -116,12 +115,20 @@ export const slotsSlice = createSlice({
             .addCase(checkLetters.pending, (state) => {
                 state.isLoading = true;
             })
-            .addCase(checkLetters.rejected, (state, action) => {
+            .addCase(checkLetters.rejected, (state) => {
                 state.isLoading = false;
             });
     }
 });
 
-export const { selectSlot, selectKey, deleteLetter, setError, setStates, setLoading, setWords, setResult } = slotsSlice.actions;
+export const { 
+    selectSlot, 
+    selectKey, 
+    deleteLetter, 
+    setError, 
+    setStates, 
+    setLoading, 
+    setWords, 
+    setResult } = slotsSlice.actions;
 
 export default slotsSlice.reducer;

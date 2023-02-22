@@ -4,6 +4,9 @@ import { useSelector } from 'react-redux';
 
 function Error() {
     const { errorMessage }  = useSelector(state => state.slots.error);
+    if (!errorMessage) {
+        return null;
+    }
     return (
     <div className="error">
         <div className="overlay"></div>

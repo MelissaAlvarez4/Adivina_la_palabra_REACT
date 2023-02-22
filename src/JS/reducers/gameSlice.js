@@ -1,7 +1,6 @@
+import { PATH, ERROR_MSG} from '../constants';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { initialState } from '../store/initialState';
-
-const PATH = 'https://adivina-palabra.fly.dev';
 
 export const startGame = createAsyncThunk(
   'game/startGame',
@@ -16,7 +15,7 @@ export const startGame = createAsyncThunk(
         return data.id;
 
       } catch (error) {
-        throw new Error('Error initializing game: 404');
+        throw new Error(ERROR_MSG);
       }
   }
 );
